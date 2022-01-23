@@ -42,6 +42,7 @@ module Main
 ----------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------
 
+
 -- | Imports ---------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------
 
@@ -56,14 +57,13 @@ import qualified Data.Map                            as M
 import           Data.Map.Strict                     (Map)
 import qualified Data.Map.Strict                     as StrictMap (fromList)
 import           Data.Maybe
+import           Data.Monoid
 import qualified Data.Set                            as DS
-import           GHC.Exts                           
+import           GHC.Exts
 import           System.Directory                    (getCurrentDirectory)
 import           System.Environment
 import           System.Exit
 import           System.IO.Unsafe                    (unsafePerformIO)
-
-import           Data.Monoid
 
 ----------------------------------------------------------------------------------------------------------------
 -- | Xmonad
@@ -141,9 +141,9 @@ import           XMonad.Util.Invisible               (Invisible (..))
 import           XMonad.Util.NamedScratchpad
 import qualified XMonad.Util.PureX                   as PX
 
+
 -- | Setup -----------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------
-
 
 -- | REQUIRED BY MAIN
 ----------------------------------------------------------------------------------------------------------------
@@ -837,7 +837,7 @@ main = do
             gets (W.screen . W.current . windowset) >>= \x -> warpToScreen x 0.5 0.5
 
           --------------------------------------------------------------------------------
-          -- | Named Scratchpads  --------------------------------------------------------
+          -- | Named Scratchpads
           --------------------------------------------------------------------------------
           myScratchPads :: [NamedScratchpad]
           myScratchPads =
