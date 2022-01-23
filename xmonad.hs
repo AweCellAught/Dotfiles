@@ -49,7 +49,7 @@ module Main
   -- | Data, etc.
 ----------------------------------------------------------------------------------------------------------------
 import           Control.Arrow                       ((&&&))
-import           Control.Monad                       hiding (void)
+import           Control.Monad
 import           Data.Char
 import           Data.List
 import qualified Data.Map                            as M
@@ -57,7 +57,7 @@ import           Data.Map.Strict                     (Map)
 import qualified Data.Map.Strict                     as StrictMap (fromList)
 import           Data.Maybe
 import qualified Data.Set                            as DS
-import           GHC.Exts                            hiding (Any)
+import           GHC.Exts                           
 import           System.Directory                    (getCurrentDirectory)
 import           System.Environment
 import           System.Exit
@@ -69,7 +69,7 @@ import           Data.Monoid
 -- | Xmonad
 ----------------------------------------------------------------------------------------------------------------
 import           XMonad
-import           XMonad.Prelude                      hiding (group, void)
+import           XMonad.Prelude
 import qualified XMonad.StackSet                     as W
 import           XMonad.Util.Run
 import           XMonad.Util.Ungrab
