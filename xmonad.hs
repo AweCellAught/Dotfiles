@@ -14,8 +14,6 @@ https://hub.darcs.net/rgm/config-xmonad/browse/lib/My/Launch.hs
 https://wiki.haskell.org/Xmonad/Config_archive/Brent_Yorgey%27s_darcs_xmonad.hs
 https://wiki.haskell.org/Xmonad/Config_archive/adamvo%27s_xmonad.hs
 
--- TODO https://gist.github.com/Soft/763129
--- https://github.com/Soft/xmonad-config-soft
 -}
 ----------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------
