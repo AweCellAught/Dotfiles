@@ -139,10 +139,7 @@ data LockdownState = LockdownState Bool
 
 instance ExtensionClass LockdownState where
   initialValue  = LockdownState False
-  extensionType = PersistentExtension
-
--- setLockdown :: X ()
--- setLockdown = XS.put (LockdownState True)
+  extensionType = PersistentExtension`
 
 
 ----------------------------------------------------------------------------------------------------------------
@@ -198,7 +195,7 @@ main = do
               , ppSep = xmobarColor colorBlue "" " :: " --------------- Seperators in xmobar
               , ppHidden = xmobarColor colorGray "" . wrap "{" "}" ---- Hidden workspaces in xmobar
               , ppExtras = [windowCount] ------------------------------ Window count on current workspace
-              , ppTitle = xmobarColor colorGreen "" -- . shorten 60
+              , ppTitle = xmobarColor colorGreen ""
               }
 
         }
