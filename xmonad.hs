@@ -4,6 +4,7 @@ https://github.com/alternateved/nixos-config/blob/main/config/xmonad/xmonad.hs
 https://github.com/arcolinux/arcolinux-xmonad-polybar/blob/master/etc/skel/.xmonad/xmonad.hs
 https://github.com/byorgey/dotfiles/blob/master/xmonad.hs
 https://github.com/byorgey/split/blob/master/src/Data/List/Split/Internals.hs
+https://github.com/lifer0se/dotfiles/blob/master/.config/xmonad/xmonad.hs
 https://github.com/liskin/dotfiles/blob/home/.xmonad/XMonad/Actions/DoNotDisturb.hs
 https://github.com/liskin/dotfiles/blob/home/.xmonad/XMonad/Hooks/LayoutHistory.hs
 https://github.com/liskin/dotfiles/blob/home/.xmonad/XMonad/Util/My.hs
