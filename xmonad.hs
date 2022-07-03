@@ -19,10 +19,10 @@ https://wiki.haskell.org/Xmonad/Config_archive/adamvo%27s_xmonad.hs
 https://www.youtube.com/watch?v=n82TXg7VHu0 -- [ Otis McDonald «» Behind these Closed Doors ]
 
 -}
-{-# LANGUAGE FlexibleContexts          #-}
-{-# LANGUAGE LambdaCase                #-}
-{-# LANGUAGE RecordWildCards           #-}
-{-# LANGUAGE ScopedTypeVariables       #-}
+{-# LANGUAGE FlexibleContexts    #-}
+{-# LANGUAGE LambdaCase          #-}
+{-# LANGUAGE RecordWildCards     #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Main
   ( main
@@ -427,8 +427,6 @@ keyBindings XConfig {..} =
   , ((modMask, xK_j), unGrab >> namedScratchpadAction scratchpads "htop" >> up)
   , ((modMask .|. altMask, xK_space), currentTopicAction topicConfig)
   , ((modMask .|. altMask, xK_slash), curDirToWorkspacename)
-  -- , ((modMask, xK_f), SM.submap $ searchEngineMap $ S.promptSearch P.def)
-  -- , ((modMask, xK_f), SM.submap $ searchEngineMap $ S.promptSearch prompt)
   , ((modMask, xK_f), SM.submap $ searchEngineMap $ S.promptSearch xpConfig)
   , ((modMask .|. shiftMask, xK_f), SM.submap $ searchEngineMap S.selectSearch)
   , ((modMask, xK_n), switchProjectPrompt prompt)
@@ -862,25 +860,18 @@ takeScreenshot =
 tHSK, tWEB, tDSC, tYTM, tYTB, tEMC, tHXC, tMSG :: Topic
 tHSK :: Topic = "<fn=1>\xf120</fn>"
 
--- tWEB :: Topic = "#1: BRWSR"
 tWEB :: Topic = "Γ"
 
--- tDSC :: Topic = "#2: DSCRD"
 tDSC :: Topic = "Δ"
 
--- tYTM :: Topic = "#3: YTMSC"
 tYTM :: Topic = "Θ"
 
--- tYTB :: Topic = "#4: YTUBE"
 tYTB :: Topic = "Λ"
 
--- tEMC :: Topic = "#5: EMACS"
 tEMC :: Topic = "Ξ"
 
--- tHXC :: Topic = "#6: HXCHT"
 tHXC :: Topic = "Π"
 
--- tMSG :: Topic = "#7: MSSGS"
 tMSG :: Topic = "Σ"
 
 topRowNumKeysPlusBrackets :: [KeySym]
@@ -1006,9 +997,7 @@ main = do
         show .
         length . W.integrate' . W.stack . W.workspace . W.current . windowset
   let wLayout = \t -> "[ " ++ colorXmobar Egnaro t ++ " ]"
-  -- xmproc0 <- spawnPipe "xmobar /home/ocelot/Haskell/.xmobarrc -x 0"
   xmproc0 <- spawnPipe "xmobar /home/ocelot/Haskell/.topXmobarrc -x 0"
-  -- xmproc1 <- spawnPipe "xmobar /home/ocelot/Haskell/.xmobarrc -x 1"
   xmproc1 <- spawnPipe "xmobar /home/ocelot/Haskell/.bottomXmobarrc -x 0"
   xmonad $
     withEasySB mySB defToggleStrutsKey .
