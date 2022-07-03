@@ -298,7 +298,6 @@ gimp = "gimp"
 hexchat :: [Char]
 hexchat = "hexchat"
 
-
 hyperMask :: KeyMask
 hyperMask = mod3Mask
 
