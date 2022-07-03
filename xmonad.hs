@@ -23,7 +23,6 @@ https://www.youtube.com/watch?v=n82TXg7VHu0 -- [ Otis McDonald «» Behind these
 {-# LANGUAGE LambdaCase          #-}
 {-# LANGUAGE RecordWildCards     #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE ApplicativeDo #-}
 
 module Main
   ( main
