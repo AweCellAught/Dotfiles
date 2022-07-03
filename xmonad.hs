@@ -23,6 +23,7 @@ https://www.youtube.com/watch?v=n82TXg7VHu0 -- [ Otis McDonald «» Behind these
 {-# LANGUAGE LambdaCase          #-}
 {-# LANGUAGE RecordWildCards     #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ApplicativeDo #-}
 
 module Main
   ( main
@@ -297,6 +298,7 @@ gimp = "gimp"
 
 hexchat :: [Char]
 hexchat = "hexchat"
+
 
 hyperMask :: KeyMask
 hyperMask = mod3Mask
@@ -964,37 +966,6 @@ ytMusic =
 
 main :: IO ()
 main = do
-  let currWS = \t -> "<fn=0>" ++ colorXmobar Green t ++ "</fn>"
-  let mySB = statusBarProp "xmobar" (pure myPP)
-        where
-          myPP = def {ppCurrent = xmobarColor colorBlack colorWhite}
-  let notEmpty = \t -> "<fn=0>" ++ colorXmobar Red t ++ "</fn>"
-  let order = \(ws:l:t:ex) -> [ws, l] ++ ex ++ [t]
-  let showWS = \(W.Workspace tag _ _) -> isVisibleWS tag
-        where
-          isVisibleWS = not . isHiddenWS -- | Check whether a given workspace is visible or not.
-            where
-              isHiddenWS wsTag = wsTag `elem` myHiddenWorkspaces -- | Check whether a given workspace is hidden or not.
-                where
-                  myHiddenWorkspaces =
-                    hiddenMinWorkspaceTags ++ hiddenFloatWorkspaceTags -- | The names of all hidden workspaces.
-                    where
-          hiddenFloatWorkspaceTags = map hiddenFloatWorkspaceOf myVisibleWorkspaces -- The names of the workspaces used to hide floating windows.
-            where
-              hiddenFloatWorkspaceOf wsTag = wsTag ++ "_hf" -- The workspace used to hide floating windows from a given workspace.
-
-          hiddenMinWorkspaceTags = map hiddenMinWorkspaceOf myVisibleWorkspaces -- The names of the workspaces used to hide minimised windows.
-            where
-              hiddenMinWorkspaceOf wsTag = wsTag ++ "_hm" -- The workspace used to hide minimised windows from a given workspace.
-
-
-  let urgtWS = colorXmobar Magenta
-  let windowCount =
-        gets $
-        Just .
-        show .
-        length . W.integrate' . W.stack . W.workspace . W.current . windowset
-  let wLayout = \t -> "[ " ++ colorXmobar Egnaro t ++ " ]"
   xmproc0 <- spawnPipe "xmobar /home/ocelot/Haskell/.topXmobarrc -x 0"
   xmproc1 <- spawnPipe "xmobar /home/ocelot/Haskell/.bottomXmobarrc -x 0"
   xmonad $
@@ -1033,6 +1004,33 @@ main = do
               }
         }
   where
+    currWS = \t -> "<fn=0>" ++ colorXmobar Green t ++ "</fn>"
+    mySB = statusBarProp "xmobar" (pure myPP)
+      where
+        myPP = def {ppCurrent = xmobarColor colorBlack colorWhite}
+    notEmpty = \t -> "<fn=0>" ++ colorXmobar Red t ++ "</fn>"
+    order = \(ws:l:t:ex) -> [ws, l] ++ ex ++ [t]
+    showWS = \(W.Workspace tag _ _) -> isVisibleWS tag
+      where
+        isVisibleWS = not . isHiddenWS -- | Check whether a given workspace is visible or not.
+          where
+            isHiddenWS wsTag = wsTag `elem` myHiddenWorkspaces -- | Check whether a given workspace is hidden or not.
+              where
+                myHiddenWorkspaces =
+                  hiddenMinWorkspaceTags ++ hiddenFloatWorkspaceTags -- | The names of all hidden workspaces.
+                  where
+                    hiddenFloatWorkspaceTags = map hiddenFloatWorkspaceOf myVisibleWorkspaces -- The names of the workspaces used to hide floating windows.
+        hiddenFloatWorkspaceOf wsTag = wsTag ++ "_hf" -- The workspace used to hide floating windows from a given workspace.
+        hiddenMinWorkspaceTags = map hiddenMinWorkspaceOf myVisibleWorkspaces -- The names of the workspaces used to hide minimised windows.
+          where
+            hiddenMinWorkspaceOf wsTag = wsTag ++ "_hm" -- The workspace used to hide minimised windows from a given workspace.
+    windowCount =
+      gets $
+      Just .
+      show .
+      length . W.integrate' . W.stack . W.workspace . W.current . windowset
+    wLayout = \t -> "[ " ++ colorXmobar Egnaro t ++ " ]"
+    urgtWS = colorXmobar Magenta
     zConfig =
       def
         { terminal =
