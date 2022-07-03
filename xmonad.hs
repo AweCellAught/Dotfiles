@@ -955,12 +955,9 @@ workspacesPlusTopics -- | The names of the visible workspaces/topics.
 xpConfig :: XPConfig
 xpConfig =
   def
-    -- { P.font = "-misc-fixed-medium-r-normal-*-13-*-*-*-*-*-*-*"
-    -- { P.font = myFontMeh
     { P.font = myFontHuge
     , P.bgColor = "#200000"
     , P.fgColor = "#CFCFCF"
-    -- , P.height = 22
     , P.height = 64
     , P.position = P.CenteredAt 0.5 0.5
     , P.promptBorderWidth = 2
