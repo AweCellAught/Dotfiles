@@ -298,14 +298,6 @@ gimp = "gimp"
 hexchat :: [Char]
 hexchat = "hexchat"
 
-hiddenFloatWorkspaceTags, hiddenMinWorkspaceTags :: [[Char]]
-hiddenFloatWorkspaceTags = map hiddenFloatWorkspaceOf myVisibleWorkspaces -- The names of the workspaces used to hide floating windows.
-  where
-    hiddenFloatWorkspaceOf wsTag = wsTag ++ "_hf" -- The workspace used to hide floating windows from a given workspace.
-
-hiddenMinWorkspaceTags = map hiddenMinWorkspaceOf myVisibleWorkspaces -- The names of the workspaces used to hide minimised windows.
-  where
-    hiddenMinWorkspaceOf wsTag = wsTag ++ "_hm" -- The workspace used to hide minimised windows from a given workspace.
 
 hyperMask :: KeyMask
 hyperMask = mod3Mask
@@ -987,6 +979,16 @@ main = do
                 where
                   myHiddenWorkspaces =
                     hiddenMinWorkspaceTags ++ hiddenFloatWorkspaceTags -- | The names of all hidden workspaces.
+                    where
+          hiddenFloatWorkspaceTags = map hiddenFloatWorkspaceOf myVisibleWorkspaces -- The names of the workspaces used to hide floating windows.
+            where
+              hiddenFloatWorkspaceOf wsTag = wsTag ++ "_hf" -- The workspace used to hide floating windows from a given workspace.
+
+          hiddenMinWorkspaceTags = map hiddenMinWorkspaceOf myVisibleWorkspaces -- The names of the workspaces used to hide minimised windows.
+            where
+              hiddenMinWorkspaceOf wsTag = wsTag ++ "_hm" -- The workspace used to hide minimised windows from a given workspace.
+
+
   let urgtWS = colorXmobar Magenta
   let windowCount =
         gets $
