@@ -6,7 +6,7 @@ Config { font = "xft:DejaVu Sans:size=12"
         , fgColor = "#FFFFFF"
         , alpha   = 255
         , position = Top
-        , border = BottomB -- NoBorder
+        , border = NoBorder
         , borderColor = "#007956" -- "#BFBFBF"
         , borderWidth = 3
         , textOffset = -1
