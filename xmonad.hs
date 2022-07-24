@@ -1,5 +1,4 @@
 {- | PORTIONS OF CODE AND/OR COMMENTS, UNICODE CHARACTERS, HEX CODES, ETC. FROM THE FOLLOWING SOURCES ARE CURRENTLY IN USE BELOW AS OF WRITING:
-
 https://github.com/alternateved/nixos-config/blob/main/config/xmonad/xmonad.hs
 https://github.com/arcolinux/arcolinux-xmonad-polybar/blob/master/etc/skel/.xmonad/xmonad.hs
 https://github.com/byorgey/dotfiles/blob/master/xmonad.hs
@@ -18,7 +17,6 @@ https://music.youtube.com/watch?v=0mSGydswh3E&feature=share -- [ Don't Get In My
 https://wiki.haskell.org/Xmonad/Config_archive/Brent_Yorgey%27s_darcs_xmonad.hs
 https://wiki.haskell.org/Xmonad/Config_archive/adamvo%27s_xmonad.hs
 https://www.youtube.com/watch?v=n82TXg7VHu0 -- [ Otis McDonald «» Behind these Closed Doors ]
-
 -}
 {-# LANGUAGE FlexibleContexts    #-}
 {-# LANGUAGE LambdaCase          #-}
@@ -134,31 +132,17 @@ import           XMonad.Util.SpawnOnce
 import           XMonad.Util.Ungrab
 import           XMonad.Util.WorkspaceCompare
 
-newtype LockdownState =
-  LockdownState Bool
-  deriving (Typeable, Read, Show)
-
-newtype SPStorage =
-  SPStorage (M.Map String Window) -- | Stores dynamic scratchpads as a map of name to window.
-  deriving (Read, Show)
-
-instance ExtensionClass LockdownState where
-  initialValue = LockdownState False
-  extensionType = PersistentExtension
-
-instance ExtensionClass SPStorage where
-  initialValue = SPStorage M.empty
-  extensionType = PersistentExtension
-
 altMask :: KeyMask
 altMask = mod1Mask
 
 chatterino :: String
 chatterino = "chatterino"
 
-colorOneShadeShortOfAlarm, colorTrueYellow, colorTrafficYellow, colorAmber, colorAqua, colorBlue, colorGreen, colorIntOr, colorMagenta, colorOrInt, colorRed, colorBlack, colorGray, colorYarg, colorWhite ::
+colorOneShadeMoreThanAlarm, colorOneShadeShortOfAlarm, colorTrueYellow, colorTrafficYellow, colorAmber, colorAqua, colorBlue, colorGreen, colorIntOr, colorMagenta, colorOrInt, colorRed, colorBlack, colorGray, colorYarg, colorWhite ::
      String
 colorOneShadeShortOfAlarm :: String = "#790023"
+
+colorOneShadeMoreThanAlarm :: String = "#007956"
 
 colorTrafficYellow :: String = "#EFB700"
 
@@ -198,6 +182,7 @@ data Color -- | The the Day After Tomorrow Color Pallette.
   | Foreground
   | Green
   | Magenta
+  | OneShadeMoreThanAlarm
   | OneShadeShortOfAlarm
   | Orange
   | Red
@@ -208,20 +193,21 @@ colorHex :: Main.Color -> String
 colorHex -- Converts a color into a hexidecimal string with a leading \'#\'
  =
   \case
-    Amber                -> colorAmber
-    Aqua                 -> colorAqua
-    Background           -> colorBlack
-    Blue                 -> colorBlue
-    Comment              -> colorGray
-    Egnaro               -> colorOrInt
-    Foreground           -> colorWhite
-    Green                -> colorGreen
-    Magenta              -> colorMagenta
-    OneShadeShortOfAlarm -> colorOneShadeShortOfAlarm
-    Orange               -> colorIntOr
-    Red                  -> colorRed
-    TrafficYellow        -> colorTrafficYellow
-    TrueYellow           -> colorTrueYellow
+    Amber                 -> colorAmber
+    Aqua                  -> colorAqua
+    Background            -> colorBlack
+    Blue                  -> colorBlue
+    Comment               -> colorGray
+    Egnaro                -> colorOrInt
+    Foreground            -> colorWhite
+    Green                 -> colorGreen
+    Magenta               -> colorMagenta
+    OneShadeMoreThanAlarm -> colorOneShadeMoreThanAlarm
+    OneShadeShortOfAlarm  -> colorOneShadeShortOfAlarm
+    Orange                -> colorIntOr
+    Red                   -> colorRed
+    TrafficYellow         -> colorTrafficYellow
+    TrueYellow            -> colorTrueYellow
 
 colorXmobar :: Main.Color -> String -> String
 colorXmobar fg = xmobarColor (colorHex fg) "" -- | Use xmobar escape codes to output a string with the given foreground color.
@@ -417,6 +403,7 @@ keyBindings XConfig {..} =
   , ( (modMask .|. altMask, xK_p)
     , namedScratchpadAction scratchpads "amixer" >> up)
   , ((modMask, xK_j), unGrab >> namedScratchpadAction scratchpads "htop" >> up)
+  , ((modMask, xK_b), unGrab >> namedScratchpadAction scratchpads "brave" >> up)
   , ((modMask .|. altMask, xK_space), currentTopicAction topicConfig)
   , ((modMask .|. altMask, xK_slash), curDirToWorkspacename)
   , ((modMask, xK_f), SM.submap $ searchEngineMap $ S.promptSearch xpConfig)
@@ -807,6 +794,7 @@ scratchpads =
     zSPS =
       [ NS "amixer" (myOtherTerminal ++ " -e alsamixer") (title =? "alsamixer")
       , NS "htop" (myOtherTerminal ++ " -e htop") (title =? "htop")
+      , NS "brave" (myBrowser) (title =? "BraveSP")
       ]
 
 scrollMask :: KeyMask
@@ -852,19 +840,19 @@ takeScreenshot =
 tHSK, tWEB, tDSC, tYTM, tYTB, tEMC, tHXC, tMSG :: Topic
 tHSK :: Topic = "<fn=1>\xf120</fn>"
 
-tWEB :: Topic = "Γ"
+tWEB :: Topic = "Ⅰ"
 
-tDSC :: Topic = "Δ"
+tDSC :: Topic = "Ⅱ"
 
-tYTM :: Topic = "Θ"
+tYTM :: Topic = "Ⅲ"
 
-tYTB :: Topic = "Λ"
+tYTB :: Topic = "Ⅳ"
 
-tEMC :: Topic = "Ξ"
+tEMC :: Topic = "Ⅴ"
 
-tHXC :: Topic = "Π"
+tHXC :: Topic = "Ⅵ"
 
-tMSG :: Topic = "Σ"
+tMSG :: Topic = "Ⅶ"
 
 topRowNumKeysPlusBrackets :: [KeySym]
 topRowNumKeysPlusBrackets =
@@ -965,8 +953,9 @@ ytMusic =
 
 main :: IO ()
 main = do
-  xmproc0 <- spawnPipe "xmobar /home/ocelot/Haskell/.topXmobarrc -x 0"
-  xmproc1 <- spawnPipe "xmobar /home/ocelot/Haskell/.bottomXmobarrc -x 0"
+  xmproc <-
+    spawnPipe
+      "xmobar /home/ocelot/Haskell/.topXmobarrc -x 0; xmobar /home/ocelot/Haskell/.bottomXmobarrc -x 0"
   xmonad $
     withEasySB mySB defToggleStrutsKey .
     withNavigation2DConfig def .
@@ -983,31 +972,25 @@ main = do
         { logHook =
             dynamicLogWithPP $
             xmobarPP
-              { ppCurrent = currWS ---------------------------------- Highlight the current workspace.
+              { ppCurrent = xmobarColor colorGreen "" . wrap "<fn=0>" "</fn>" ---------------------------------- Highlight the current workspace.
               , ppExtras = [windowCount] ---------------------------- Window count on current workspace
-              , ppHidden = xmobarColor colorGray "" . wrap "«" "»" -- Hidden workspaces in xmobar
-              , ppLayout = wLayout ---------------------------------- Color the active layout name.
-              , ppOutput =
-                  \x ->
-                    hPutStrLn xmproc0 x -- | xmobar on monitor 1
-                     >>
-                    hPutStrLn xmproc1 x -- | xmobar on monitor 2
-              , ppOrder = order -------------------------- Only display the list of workspaces.
-              -- , ppSep = xmobarColor colorBlue "" " «» " -- Seperators in xmobar
+              , ppHidden =
+                  xmobarColor colorGray "" .
+                  wrap "<fn=0>" "</fn>" . wrap "‹" "›"
+              , ppLayout = xmobarColor colorOrInt "" -- Color the active layout name.
+              , ppOutput = \x -> hPutStrLn xmproc x
+              , ppOrder = order ------------------------- Only display the list of workspaces.
               , ppSep = xmobarColor colorBlue "" " • " -- Seperators in xmobar
               , ppSort = (. filter showWS) <$> getSortByIndex
-              -- , ppTitle = xmobarColor colorTrueYellow ""
-              , ppTitle = xmobarColor colorAmber ""
+              , ppTitle = xmobarColor colorGreen "" . wrap "<fn=0>" "</fn>"
               , ppUrgent = urgtWS -- Highlight any urgent workspaces.
-              , ppVisible = notEmpty
+              , ppVisible = xmobarColor colorRed "" . wrap "<fn=0>" "</fn>" -- | HACK:
               }
         }
   where
-    currWS = \t -> "<fn=0>" ++ colorXmobar Green t ++ "</fn>"
     mySB = statusBarProp "xmobar" (pure myPP)
       where
         myPP = def {ppCurrent = xmobarColor colorBlack colorWhite}
-    notEmpty = \t -> "<fn=0>" ++ colorXmobar Red t ++ "</fn>"
     order = \(ws:l:t:ex) -> [ws, l] ++ ex ++ [t]
     showWS = \(W.Workspace tag _ _) -> isVisibleWS tag
       where
@@ -1018,8 +1001,9 @@ main = do
                 myHiddenWorkspaces =
                   hiddenMinWorkspaceTags ++ hiddenFloatWorkspaceTags -- | The names of all hidden workspaces.
                   where
-                    hiddenFloatWorkspaceTags = map hiddenFloatWorkspaceOf myVisibleWorkspaces -- The names of the workspaces used to hide floating windows.
-        hiddenFloatWorkspaceOf wsTag = wsTag ++ "_hf" -- The workspace used to hide floating windows from a given workspace.
+                    hiddenFloatWorkspaceTags =
+                      map hiddenFloatWorkspaceOf myVisibleWorkspaces ------------ The names of the workspaces used to hide floating windows.
+        hiddenFloatWorkspaceOf wsTag = wsTag ++ "_hf" -------------------------- The workspace used to hide floating windows from a given workspace.
         hiddenMinWorkspaceTags = map hiddenMinWorkspaceOf myVisibleWorkspaces -- The names of the workspaces used to hide minimised windows.
           where
             hiddenMinWorkspaceOf wsTag = wsTag ++ "_hm" -- The workspace used to hide minimised windows from a given workspace.
@@ -1028,13 +1012,12 @@ main = do
       Just .
       show .
       length . W.integrate' . W.stack . W.workspace . W.current . windowset
-    wLayout = \t -> "[ " ++ colorXmobar Egnaro t ++ " ]"
+    -- wLayout = \t -> "[ " ++ colorXmobar Egnaro t ++ " ]"
     urgtWS = colorXmobar Magenta
     zConfig =
       def
-        { terminal =
-            "urxvt -fg [100]#00ff00 -bg [100]#000000 -bd [100]#0000ff +sb -bc -uc --font xft:B612-Mono:size=12" -- Sets default terminal to rxvt-unicode.
-        , focusFollowsMouse = True ------------------------------------------------------------------------------ Enables option to automatically focus window over which cursor is hovering.
+        { terminal = "kitty" ---------------- Sets default terminal to Kitty.
+        , focusFollowsMouse = True -- Enables option to automatically focus window over which cursor is hovering.
         , logHook = currentWorkspaceOnTop
         , clickJustFocuses = False
         , borderWidth = 3 ----- Set window border width to three pixels;
@@ -1123,115 +1106,116 @@ main = do
         releaseLockdown = XS.put (LockdownState False)
         switchHook = withLockdown
           where
-            withLockdown act -- | Perform the given action only if not on lockdown
+            withLockdown act -- | PERFORM THE GIVEN ACTION ONLY IF NOT ON LOCKDOWN
              = do
               LockdownState l <- XS.get
               unless l act
         toggleLockdown = XS.modify (\(LockdownState l) -> LockdownState (not l))
         zLayoutHook =
-          avoidStruts $
-          gaps (zip [U, D, L, R] (repeat 0)) $ -- | MAKE MANUAL GAP ADJUSTMENT POSSIBLE
-          mkToggle1 NBFULL $
-          mkToggle1 REFLECTX $
-          mkToggle1 REFLECTY $
-          mkToggle1 NOBORDERS $ mkToggle1 MIRROR myDefaultLayout
+          dir .
+          windowNavigation .
+          refocusLastLayoutHook . trackFloating . BW.boringWindows $
+          minimize layouts
           where
-            myDefaultLayout =
-              windowNavigation .
-              dir .
-              refocusLastLayoutHook .
-              trackFloating . BW.boringWindows . subTabbed $
-              minimize layouts
+            dir = workspaceDir myHome
+            layouts = fixl $ sub $ named "∀" acclimate
               where
-                dir = workspaceDir myHome
-                layouts = named "∀" (fixl $ sub $ acclimate)
-                  where
-                    acclimate -- | HACK;
+                acclimate -- | HACK;
                             -- | TECHNICAL: respond physiologically or behaviorally to a change in an environmental factor under controlled conditions.
-                     = smartSpacingWithEdge 0 $ IfMax 6 haaaxxxxx magMOSaltS
-                    fixl = layoutHintsWithPlacement (0.5, 0.5) . smartBorders
-                    fullS = spacingWithEdge 0 $ noBorders Full
+                 = smartSpacingWithEdge 0 $ IfMax 6 haaaxxxxx magMOSaltS
+                  where
                     haaaxxxxx = IfMax 1 fullS $ IfMax 3 rTiledSnoMASTER hax
                       where
+                        fullS = layoutHints $ noBorders Full
                         hax = IfMax 5 rTCsNOmaster rTCMsNOmaster
-                    magMOSalt = noMASTERmag mosALT
-                    magMOSaltS =
-                      smartSpacingWithEdge 0 $
-                      spacingRaw
-                        False
-                        (Border 0 3 3 3)
-                        True
-                        (Border 3 3 3 3)
-                        True
-                        magMOSalt
-                    mosALT = MosaicAlt M.empty
-                    noMASTERmag = magnify 1.5 (NoMaster 3) True
-                    ostentationTheme =
-                      def
-                        { decoHeight = 4
-                        , activeColor = colorIntOr
-                        , inactiveColor = colorYarg
-                        , urgentColor = colorMagenta
-                        , activeBorderWidth = 0
-                        , inactiveBorderWidth = 0
-                        , urgentBorderWidth = 1
-                        , activeBorderColor = colorBlack
-                        , inactiveBorderColor = colorBlack
-                        , urgentBorderColor = colorRed
-                        }
-                    rTC = ResizableThreeCol nmaster delta fraction modifymfrac
-                      where
-                        nmaster = 1
-                        delta = (3 / 100)
-                        fraction = (1 / 2)
-                        modifymfrac = []
-                    rTCM =
-                      ResizableThreeColMid nmaster delta fraction modifymfrac
-                      where
-                        nmaster = 1
-                        delta = (3 / 100)
-                        fraction = (1 / 2)
-                        modifymfrac = []
-                    rTCMsNOmaster = noMASTERmag rTCMs
-                    rTCs =
-                      smartSpacingWithEdge 0 $
-                      spacingRaw
-                        False
-                        (Border 0 8 8 8)
-                        True
-                        (Border 8 8 8 8)
-                        True
-                        rTC
-                    rTCMs =
-                      smartSpacingWithEdge 0 $
-                      spacingRaw
-                        False
-                        (Border 0 8 8 8)
-                        True
-                        (Border 8 8 8 8)
-                        True
-                        rTCM
-                    rTCsNOmaster = noMASTERmag rTCs
-                    rTiled = ResizableTall nmaster delta ratio modifymfrac -- Default tiling algorithm, except better; partitions the screen into two panes, but where slave windows are resizeable.
-                      where
-                        nmaster = 1 ----------------------- The default number of windows in the master pane.
-                        ratio = 1 / 2 --------------------- Default proportion of screen occupied by master pane.
-                        delta = 3 / 100 ------------------- Percentage of screen by which to increment when resizing panes.
-                        modifymfrac = []
-                    rTiledS =
-                      smartSpacingWithEdge 0 $
-                      spacingRaw
-                        False
-                        (Border 0 4 4 4)
-                        True
-                        (Border 4 4 4 4)
-                        True
-                        rTiled
-                    rTiledSnoMASTER = noMASTERmag rTiledS
-                    sub =
-                      addTabs CustomShrink ostentationTheme .
-                      subLayout [] Simplest
+                          where
+                            rTCMsNOmaster = noMASTERmag rTCMs
+                fixl =
+                  layoutHintsWithPlacement (0.5, 0.5) .
+                  smartBorders . toggles . yGaps
+                  where
+                    toggles =
+                      avoidStruts .
+                      mkToggle (single NBFULL) .
+                      mkToggle1 REFLECTX .
+                      mkToggle1 REFLECTY .
+                      mkToggle1 NOBORDERS . mkToggle1 MIRROR
+                    yGaps =
+                      gaps (zip [U, D, L, R] (repeat 0)) -- | MAKE MANUAL GAP ADJUSTMENT POSSIBLE
+                magMOSalt = noMASTERmag mosALT
+                magMOSaltS =
+                  spacingRaw
+                    False
+                    (Border 0 3 3 3)
+                    True
+                    (Border 3 3 3 3)
+                    True
+                    magMOSalt
+                mosALT = MosaicAlt M.empty
+                noMASTERmag = magnify 1.5 (NoMaster 3) True
+                ostentationTheme =
+                  def
+                    { decoHeight = 4
+                    , activeColor = colorIntOr
+                    , inactiveColor = colorYarg
+                    , urgentColor = colorMagenta
+                    , activeBorderWidth = 0
+                    , inactiveBorderWidth = 0
+                    , urgentBorderWidth = 1
+                    , activeBorderColor = colorBlack
+                    , inactiveBorderColor = colorBlack
+                    , urgentBorderColor = colorRed
+                    }
+                otherRT = ResizableTall 1 0.03 (φ / (1 + φ)) [] -- Default tiling algorithm, except better; partitions the screen into two panes, but where slave windows are resizeable.
+                rT = ResizableTall 1 0.03 0.5 []
+                rTC = ResizableThreeCol 1 0.03 0.5 []
+                rTCM = ResizableThreeColMid 1 0.03 0.5 []
+                rTCs =
+                  spacingRaw
+                    False
+                    (Border 0 8 8 8)
+                    True
+                    (Border 8 8 8 8)
+                    True
+                    rTC
+                rTCMs =
+                  spacingRaw
+                    False
+                    (Border 0 8 8 8)
+                    True
+                    (Border 8 8 8 8)
+                    True
+                    rTCM
+                rTCsNOmaster = noMASTERmag rTCs
+                rTiled = IfMax 2 rT otherRT
+                rTiledS =
+                  spacingRaw
+                    False
+                    (Border 0 4 4 4)
+                    True
+                    (Border 4 4 4 4)
+                    True
+                    rTiled
+                rTiledSnoMASTER = noMASTERmag rTiledS
+                sub =
+                  addTabs CustomShrink ostentationTheme . subLayout [] Simplest
+                φ = realToFrac ((1.0 + sqrt 5) / 2.0 :: Double)
 
+{- |    Using @colorXmobar Green@ in place of @xmobarColor colorGray@ as an example, the above wrappers respecting @ppHidden@,
+      normally (meaning, without using either the named color system found below, or something else functionally similar), would have otherwise been written, for instance:
+
+                 ppHidden = \t -> "‹" ++ colorXmobar Green t ++ "›"
+-}
+{- |    Also, please note that,
+
+                 . wrap "<fn=0>" "</fn>"
+
+      (or any other method of wrapping what is, in this case, the default font--if in a stupidly bassackwards fashion--for that matter) is only necessary above,
+    in that context--and for the purposes of this particlar application, at least--because @<fn=1>%UnsafeStdinReader%</fn>@ is used in @.topXmobarrc@ (within @template@),
+    so that the first entry listed thereinabove, within @additionalFonts@, can in turn be used as a wrapper around @%UnsafeStdinReader%@ in it's entirity.
+
+      So, to put it simply: it's complicated.
+-}
 data CustomShrink =
   CustomShrink
 
@@ -1243,3 +1227,11 @@ instance Read CustomShrink where
 
 instance Shrinker CustomShrink where
   shrinkIt _ _ = []
+
+newtype LockdownState =
+  LockdownState Bool
+  deriving (Typeable, Read, Show)
+
+instance ExtensionClass LockdownState where
+  initialValue = LockdownState False
+  extensionType = PersistentExtension
