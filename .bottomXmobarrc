@@ -1,0 +1,35 @@
+-- | BOTTOM XMOBAR
+Config { font = "xft:B612 Regular:size=11"
+        , additionalFonts = []
+        , wmClass = "xmobar"
+        , wmName = "xmobar"
+        , bgColor = "#000000"
+        , fgColor = "#CFCFCF"
+        , alpha   = 255
+        , position = BottomW R 50
+        , border = NoBorder
+        , borderColor = "#BFBFBF"
+        , borderWidth = 1
+        , textOffset = -1
+        , iconOffset = -1
+        , textOffsets = []
+        , hideOnStart = False
+        , lowerOnStart = True
+        , persistent = False
+        , allDesktops = True
+        , overrideRedirect = True
+        , pickBroadest = False
+        , iconRoot = "."
+        , commands = [ Run Network "wlan0" ["-L","0","-H","32",
+                                          "--normal","#00FF00","--high","#FF0000"] 10
+                    , Run Uptime ["-t", "Up: <days>d <hours>h"] 36000
+
+                    , Run Cpu ["-L","3","-H","50",
+                               "--normal","green","--high","red"] 10
+                    , Run Memory ["-t","Mem: <usedratio>%"] 10
+                    , Run Swap [] 10
+                     ]
+        , sepChar = "%"
+        , alignSep = "}{"
+        , template = "}\
+                    \{%cpu% | %memory% * %swap% | %wlan0% <fc=#ffbf00>%uptime%</fc>"
