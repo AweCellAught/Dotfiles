@@ -1,9 +1,11 @@
+-- | TOP XMOBAR
 Config { font = "xft:DejaVu Sans:size=12"
-        , additionalFonts = ["xft:B612 Mono:size=12"]
+        , additionalFonts = ["xft:B612:size=12"
+        , "xft:B612 Mono:size=12"]
         , wmClass = "xmobar"
         , wmName = "xmobar"
         , bgColor = "#000000"
-        , fgColor = "#FFFFFF"
+        , fgColor = "#CFCFCF"
         , alpha   = 255
         , position = Top
         , border = NoBorder
@@ -21,9 +23,8 @@ Config { font = "xft:DejaVu Sans:size=12"
         , iconRoot = "."
         , commands = [ Run Date " %w • %Y/%m/%_d • %H:%M (%S) [%Z] • %j" "date" 10
                     , Run UnsafeStdinReader]
-                    -- ]
         , sepChar = "%"
         , alignSep = "}{"
-        , template = "<fn=1>%UnsafeStdinReader%</fn>}\
+        , template = "%UnsafeStdinReader%}\
                     \{<fc=#ffbf00><fn=1>%date%</fn></fc>"
         }
