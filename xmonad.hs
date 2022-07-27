@@ -22,6 +22,7 @@ https://www.youtube.com/watch?v=n82TXg7VHu0 -- [ Otis McDonald «» Behind these
 {-# LANGUAGE LambdaCase          #-}
 {-# LANGUAGE RecordWildCards     #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE BlockArguments #-}
 
 module Main
   ( main
@@ -168,7 +169,8 @@ colorBlack :: String = "#000000" -- BLACK
 
 colorGray :: String = "#808080" --- GRAY
 
-colorYarg :: String = "#2e2e2e" -- YARG
+-- colorYarg :: String = "#2e2e2e" -- YARG
+colorYarg :: String = "#CFCFCF" -- YARG
 
 colorWhite :: String = "#ffffff" -- WHITE
 
@@ -951,6 +953,7 @@ youTube =
 ytMusic =
   "/opt/brave.com/brave/brave-browser --profile-directory=Default --app-id=cinhimbnkkaeohfgghhklpknlkffjgod"
 
+-- zzzAccountingCalledTheyWantTheirBottomLineBack = do --TODO
 main :: IO ()
 main = do
   xmproc <-
@@ -973,47 +976,43 @@ main = do
             dynamicLogWithPP $
             xmobarPP
               { ppCurrent = xmobarColor colorGreen "" . wrap "<fn=0>" "</fn>" ---------------------------------- Highlight the current workspace.
-              , ppExtras = [windowCount] ---------------------------- Window count on current workspace
+              , ppExtras = [gets $ Just .
+                show . length . W.integrate' . W.stack . W.workspace . W.current . windowset
+                           ]---------------------------- Window count on current workspace
               , ppHidden =
                   xmobarColor colorGray "" .
                   wrap "<fn=0>" "</fn>" . wrap "‹" "›"
-              , ppLayout = xmobarColor colorOrInt "" -- Color the active layout name.
+              , ppLayout = \t -> "{-" ++ colorXmobar Egnaro t ++ "-}" --xmobarColor colorOrInt "" -- Color the active layout name.
               , ppOutput = \x -> hPutStrLn xmproc x
-              , ppOrder = order ------------------------- Only display the list of workspaces.
-              , ppSep = xmobarColor colorBlue "" " • " -- Seperators in xmobar
-              , ppSort = (. filter showWS) <$> getSortByIndex
-              , ppTitle = xmobarColor colorGreen "" . wrap "<fn=0>" "</fn>"
-              , ppUrgent = urgtWS -- Highlight any urgent workspaces.
-              , ppVisible = xmobarColor colorRed "" . wrap "<fn=0>" "</fn>" -- | HACK:
+              , ppOrder = \(ws:l:t:ex) -> [ws, l] ++ ex ++ [t] ------------------------- Only display the list of workspaces.
+              , ppSep =  xmobarColor colorOneShadeMoreThanAlarm ""  . wrap "<fn=2>" "</fn>" $ " :: " -- Seperators in xmobar
+              , ppSort = (. filter \(W.Workspace tag _ _) -> isVisibleWS tag) <$> getSortByIndex
+              , ppTitle =
+                  xmobarColor colorGreen "" .
+                  wrap "<fn=0>" "</fn>" . wrap "<fn=0>" "</fn>"
+              , ppUrgent = xmobarColor colorMagenta "" -- Highlight any urgent workspaces.
+              , ppVisible =
+                  xmobarColor colorRed "" .
+                  wrap "<fn=0>" "</fn>" . wrap "<fn=0>" "</fn>" . wrap "«" "»"
               }
         }
   where
-    mySB = statusBarProp "xmobar" (pure myPP)
+    isVisibleWS = not . isHiddenWS -- | Check whether a given workspace is visible or not.
       where
-        myPP = def {ppCurrent = xmobarColor colorBlack colorWhite}
-    order = \(ws:l:t:ex) -> [ws, l] ++ ex ++ [t]
-    showWS = \(W.Workspace tag _ _) -> isVisibleWS tag
-      where
-        isVisibleWS = not . isHiddenWS -- | Check whether a given workspace is visible or not.
+        isHiddenWS wsTag = wsTag `elem` myHiddenWorkspaces -- | Check whether a given workspace is hidden or not.
           where
-            isHiddenWS wsTag = wsTag `elem` myHiddenWorkspaces -- | Check whether a given workspace is hidden or not.
+            myHiddenWorkspaces =
+              hiddenMinWorkspaceTags ++ hiddenFloatWorkspaceTags -- | The names of all hidden workspaces.
               where
-                myHiddenWorkspaces =
-                  hiddenMinWorkspaceTags ++ hiddenFloatWorkspaceTags -- | The names of all hidden workspaces.
-                  where
-                    hiddenFloatWorkspaceTags =
-                      map hiddenFloatWorkspaceOf myVisibleWorkspaces ------------ The names of the workspaces used to hide floating windows.
+                hiddenFloatWorkspaceTags =
+                  map hiddenFloatWorkspaceOf myVisibleWorkspaces ------------ The names of the workspaces used to hide floating windows.
         hiddenFloatWorkspaceOf wsTag = wsTag ++ "_hf" -------------------------- The workspace used to hide floating windows from a given workspace.
-        hiddenMinWorkspaceTags = map hiddenMinWorkspaceOf myVisibleWorkspaces -- The names of the workspaces used to hide minimised windows.
-          where
-            hiddenMinWorkspaceOf wsTag = wsTag ++ "_hm" -- The workspace used to hide minimised windows from a given workspace.
-    windowCount =
-      gets $
-      Just .
-      show .
-      length . W.integrate' . W.stack . W.workspace . W.current . windowset
-    -- wLayout = \t -> "[ " ++ colorXmobar Egnaro t ++ " ]"
-    urgtWS = colorXmobar Magenta
+    hiddenMinWorkspaceTags = map hiddenMinWorkspaceOf myVisibleWorkspaces -- The names of the workspaces used to hide minimised windows.
+      where
+        hiddenMinWorkspaceOf wsTag = wsTag ++ "_hm" -- The workspace used to hide minimised windows from a given workspace.
+
+    mySB = statusBarProp "xmobar" (pure  def {ppCurrent = xmobarColor colorBlack colorWhite})
+      where
     zConfig =
       def
         { terminal = "kitty" ---------------- Sets default terminal to Kitty.
@@ -1159,12 +1158,12 @@ main = do
                     , activeColor = colorIntOr
                     , inactiveColor = colorYarg
                     , urgentColor = colorMagenta
-                    , activeBorderWidth = 0
-                    , inactiveBorderWidth = 0
-                    , urgentBorderWidth = 1
-                    , activeBorderColor = colorBlack
-                    , inactiveBorderColor = colorBlack
-                    , urgentBorderColor = colorRed
+                    , activeBorderWidth = 1
+                    , inactiveBorderWidth = 1
+                    , urgentBorderWidth = 3
+                    , activeBorderColor = colorBlue
+                    , inactiveBorderColor = colorRed
+                    , urgentBorderColor = colorBlack -- TODO
                     }
                 otherRT = ResizableTall 1 0.03 (φ / (1 + φ)) [] -- Default tiling algorithm, except better; partitions the screen into two panes, but where slave windows are resizeable.
                 rT = ResizableTall 1 0.03 0.5 []
@@ -1201,21 +1200,6 @@ main = do
                   addTabs CustomShrink ostentationTheme . subLayout [] Simplest
                 φ = realToFrac ((1.0 + sqrt 5) / 2.0 :: Double)
 
-{- |    Using @colorXmobar Green@ in place of @xmobarColor colorGray@ as an example, the above wrappers respecting @ppHidden@,
-      normally (meaning, without using either the named color system found below, or something else functionally similar), would have otherwise been written, for instance:
-
-                 ppHidden = \t -> "‹" ++ colorXmobar Green t ++ "›"
--}
-{- |    Also, please note that,
-
-                 . wrap "<fn=0>" "</fn>"
-
-      (or any other method of wrapping what is, in this case, the default font--if in a stupidly bassackwards fashion--for that matter) is only necessary above,
-    in that context--and for the purposes of this particlar application, at least--because @<fn=1>%UnsafeStdinReader%</fn>@ is used in @.topXmobarrc@ (within @template@),
-    so that the first entry listed thereinabove, within @additionalFonts@, can in turn be used as a wrapper around @%UnsafeStdinReader%@ in it's entirity.
-
-      So, to put it simply: it's complicated.
--}
 data CustomShrink =
   CustomShrink
 
