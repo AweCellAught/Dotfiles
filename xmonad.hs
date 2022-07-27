@@ -18,11 +18,12 @@ https://wiki.haskell.org/Xmonad/Config_archive/Brent_Yorgey%27s_darcs_xmonad.hs
 https://wiki.haskell.org/Xmonad/Config_archive/adamvo%27s_xmonad.hs
 https://www.youtube.com/watch?v=n82TXg7VHu0 -- [ Otis McDonald «» Behind these Closed Doors ]
 -}
+{-# LANGUAGE BlockArguments      #-}
 {-# LANGUAGE FlexibleContexts    #-}
 {-# LANGUAGE LambdaCase          #-}
+{-# LANGUAGE ParallelListComp    #-}
 {-# LANGUAGE RecordWildCards     #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE BlockArguments #-}
 
 module Main
   ( main
@@ -59,6 +60,7 @@ import           XMonad.Actions.GridSelect
 import           XMonad.Actions.GroupNavigation
 import           XMonad.Actions.Launcher
 import           XMonad.Actions.Minimize
+import           XMonad.Actions.MouseResize
 import           XMonad.Actions.Navigation2D
 import           XMonad.Actions.PhysicalScreens
 import           XMonad.Actions.Prefix               (PrefixArgument (Raw),
@@ -77,7 +79,6 @@ import           XMonad.Actions.Warp
 import           XMonad.Actions.WindowMenu
 import           XMonad.Actions.WithAll
 import qualified XMonad.Actions.WorkspaceNames       as WN
-import           XMonad.Layout.WorkspaceDir
 
 import           XMonad.Hooks.CurrentWorkspaceOnTop
 import           XMonad.Hooks.DebugKeyEvents
@@ -90,6 +91,8 @@ import           XMonad.Hooks.ServerMode
 import           XMonad.Hooks.StatusBar
 import           XMonad.Hooks.StatusBar.PP
 import           XMonad.Hooks.WindowSwallowing
+import           XMonad.Layout.WindowArranger
+import           XMonad.Layout.WorkspaceDir
 
 import qualified XMonad.Layout.BoringWindows         as BW
 import           XMonad.Layout.Decoration            hiding (CustomShrink)
@@ -169,7 +172,6 @@ colorBlack :: String = "#000000" -- BLACK
 
 colorGray :: String = "#808080" --- GRAY
 
--- colorYarg :: String = "#2e2e2e" -- YARG
 colorYarg :: String = "#CFCFCF" -- YARG
 
 colorWhite :: String = "#ffffff" -- WHITE
@@ -281,10 +283,9 @@ focusNthScreenWUT n greedierYet = do
        then viewWith copyCat
        else PX.view)
 
-gimp :: String
+gimp, hexchat :: String
 gimp = "gimp"
 
-hexchat :: [Char]
 hexchat = "hexchat"
 
 hyperMask :: KeyMask
@@ -341,7 +342,6 @@ keyBindings XConfig {..} =
   , ((modMask .|. controlMask, xK_y), sendMessage $ MT.Toggle REFLECTY)
   , ((modMask, xK_i), sendMessage $ MT.Toggle MIRROR)
   , ((modMask .|. controlMask, xK_space), sendMessage (MT.Toggle NOBORDERS)) -- Toggles borders.
-  , ((modMask, xK_space), sendMessage ToggleStruts) --------------------------- Toggles struts.
   , ((modMask, xK_grave), viewEmptyWorkspace)
   , ((modMask .|. shiftMask, xK_p), tagToEmptyWorkspace)
   , ((hyperMask, xK_Home), withFocused (sendMessage . mergeDir id) >> up)
@@ -380,7 +380,7 @@ keyBindings XConfig {..} =
   , ((modMask .|. altMask, xK_b), nextMatchWithThis Backward className)
           -- | Terminals
   , ((modMask, xK_Return), spawn terminal) -------------- Default terminal (Main)
-  , ((modMask .|. shiftMask, xK_Return), unGrab >> spawn myOtherTerminal) -- myOtherTerminal  (VARIABLES)
+  , ((modMask .|. shiftMask, xK_Return), unGrab >> spawn myOtherTerminal) -- myOtherTerminal
           -- | Other variables
   , ((modMask, xK_x), spawn myBrowser) ---------------------- myBrowser
   , ((modMask, xK_y), spawn myEditor) ----------------------- myEditor
@@ -405,7 +405,6 @@ keyBindings XConfig {..} =
   , ( (modMask .|. altMask, xK_p)
     , namedScratchpadAction scratchpads "amixer" >> up)
   , ((modMask, xK_j), unGrab >> namedScratchpadAction scratchpads "htop" >> up)
-  , ((modMask, xK_b), unGrab >> namedScratchpadAction scratchpads "brave" >> up)
   , ((modMask .|. altMask, xK_space), currentTopicAction topicConfig)
   , ((modMask .|. altMask, xK_slash), curDirToWorkspacename)
   , ((modMask, xK_f), SM.submap $ searchEngineMap $ S.promptSearch xpConfig)
@@ -488,6 +487,10 @@ launcherConfig :: LauncherConfig
 launcherConfig =
   LauncherConfig
     {pathToHoogle = "/home/ocelot/.cabal/bin/hoogle", browser = myBrowser}
+
+main :: IO ()
+main = do
+  zzzAccountingCalledTheyWantTheirBottomLineBack
 
 messages, myBrowser :: String
 messages =
@@ -725,7 +728,8 @@ myMouseBindings XConfig {..} =
     ]
 
 myOtherTerminal, myRootFileManager :: String
-myOtherTerminal = "kitty"
+myOtherTerminal =
+  "urxvt -fg [100]#00ff00 -bg [100]#000000 -bd [100]#0000ff +sb -bc -uc --font xft:B612 Mono:size=8"
 
 myRootFileManager = "sudo thunar"
 
@@ -796,7 +800,6 @@ scratchpads =
     zSPS =
       [ NS "amixer" (myOtherTerminal ++ " -e alsamixer") (title =? "alsamixer")
       , NS "htop" (myOtherTerminal ++ " -e htop") (title =? "htop")
-      , NS "brave" (myBrowser) (title =? "BraveSP")
       ]
 
 scrollMask :: KeyMask
@@ -953,14 +956,16 @@ youTube =
 ytMusic =
   "/opt/brave.com/brave/brave-browser --profile-directory=Default --app-id=cinhimbnkkaeohfgghhklpknlkffjgod"
 
--- zzzAccountingCalledTheyWantTheirBottomLineBack = do --TODO
-main :: IO ()
-main = do
+yToggleStrutsKey :: XConfig l -> (KeyMask, KeySym)
+yToggleStrutsKey XConfig {..} = (modMask, xK_space)
+
+zzzAccountingCalledTheyWantTheirBottomLineBack :: IO ()
+zzzAccountingCalledTheyWantTheirBottomLineBack = do
   xmproc <-
     spawnPipe
       "xmobar /home/ocelot/Haskell/.topXmobarrc -x 0; xmobar /home/ocelot/Haskell/.bottomXmobarrc -x 0"
   xmonad $
-    withEasySB mySB defToggleStrutsKey .
+    withEasySB mySB yToggleStrutsKey .
     withNavigation2DConfig def .
     usePrefixArgument "M3-p" .
     docks .
@@ -976,24 +981,32 @@ main = do
             dynamicLogWithPP $
             xmobarPP
               { ppCurrent = xmobarColor colorGreen "" . wrap "<fn=0>" "</fn>" ---------------------------------- Highlight the current workspace.
-              , ppExtras = [gets $ Just .
-                show . length . W.integrate' . W.stack . W.workspace . W.current . windowset
-                           ]---------------------------- Window count on current workspace
+              , ppExtras =
+                  [ gets $
+                    Just .
+                    show .
+                    length .
+                    W.integrate' . W.stack . W.workspace . W.current . windowset
+                  ] ---------------------------- Window count on current workspace
               , ppHidden =
                   xmobarColor colorGray "" .
                   wrap "<fn=0>" "</fn>" . wrap "‹" "›"
-              , ppLayout = \t -> "{-" ++ colorXmobar Egnaro t ++ "-}" --xmobarColor colorOrInt "" -- Color the active layout name.
+              , ppLayout = \t -> "{-" ++ colorXmobar Egnaro t ++ "-}" -- Color the active layout name.
               , ppOutput = \x -> hPutStrLn xmproc x
-              , ppOrder = \(ws:l:t:ex) -> [ws, l] ++ ex ++ [t] ------------------------- Only display the list of workspaces.
-              , ppSep =  xmobarColor colorOneShadeMoreThanAlarm ""  . wrap "<fn=2>" "</fn>" $ " :: " -- Seperators in xmobar
-              , ppSort = (. filter \(W.Workspace tag _ _) -> isVisibleWS tag) <$> getSortByIndex
+              , ppOrder = \(ws:l:t:ex) -> [ws, l] ++ ex ++ [t] ---------------------------------------- Only display the list of workspaces.
+              , ppSep =
+                  xmobarColor colorOneShadeMoreThanAlarm "" .
+                  wrap "<fn=2>" "</fn>" $
+                  " :: " -- Seperators in xmobar
+              , ppSort =
+                  (. filter \(W.Workspace tag _ _) -> isVisibleWS tag) <$>
+                  getSortByIndex
               , ppTitle =
                   xmobarColor colorGreen "" .
                   wrap "<fn=0>" "</fn>" . wrap "<fn=0>" "</fn>"
               , ppUrgent = xmobarColor colorMagenta "" -- Highlight any urgent workspaces.
               , ppVisible =
-                  xmobarColor colorRed "" .
-                  wrap "<fn=0>" "</fn>" . wrap "<fn=0>" "</fn>" . wrap "«" "»"
+                  xmobarColor colorRed "" . wrap "<fn=0>" "</fn>" . wrap "«" "»"
               }
         }
   where
@@ -1005,17 +1018,19 @@ main = do
               hiddenMinWorkspaceTags ++ hiddenFloatWorkspaceTags -- | The names of all hidden workspaces.
               where
                 hiddenFloatWorkspaceTags =
-                  map hiddenFloatWorkspaceOf myVisibleWorkspaces ------------ The names of the workspaces used to hide floating windows.
-        hiddenFloatWorkspaceOf wsTag = wsTag ++ "_hf" -------------------------- The workspace used to hide floating windows from a given workspace.
+                  map hiddenFloatWorkspaceOf myVisibleWorkspaces ---------- The names of the workspaces used to hide floating windows.
+        hiddenFloatWorkspaceOf wsTag = wsTag ++ "_hf" ---------------------- The workspace used to hide floating windows from a given workspace.
     hiddenMinWorkspaceTags = map hiddenMinWorkspaceOf myVisibleWorkspaces -- The names of the workspaces used to hide minimised windows.
       where
         hiddenMinWorkspaceOf wsTag = wsTag ++ "_hm" -- The workspace used to hide minimised windows from a given workspace.
-
-    mySB = statusBarProp "xmobar" (pure  def {ppCurrent = xmobarColor colorBlack colorWhite})
-      where
+    mySB =
+      statusBarProp
+        "xmobar"
+        (pure def {ppCurrent = xmobarColor colorBlack colorWhite})
     zConfig =
       def
-        { terminal = "kitty" ---------------- Sets default terminal to Kitty.
+        { terminal = "kitty" -------- Sets default terminal to Kitty.
+        -- { terminal = xTerminal -------- Sets default terminal to Kitty.
         , focusFollowsMouse = True -- Enables option to automatically focus window over which cursor is hovering.
         , logHook = currentWorkspaceOnTop
         , clickJustFocuses = False
@@ -1029,7 +1044,8 @@ main = do
         , layoutHook = zLayoutHook
         , manageHook = myManageHook <+> manageSpawn
         , startupHook =
-            do spawn "killall trayer"
+            do adjustEventInput
+               spawn "killall trayer"
                spawn
                  "sleep 1 && trayer -l --transparent true --alpha 0 --tint 000000 --SetPartialStrut true --SetDockType true"
                spawnOnce discord
@@ -1135,6 +1151,8 @@ main = do
                   where
                     toggles =
                       avoidStruts .
+                      mouseResize .
+                      windowArrange .
                       mkToggle (single NBFULL) .
                       mkToggle1 REFLECTX .
                       mkToggle1 REFLECTY .
@@ -1142,14 +1160,7 @@ main = do
                     yGaps =
                       gaps (zip [U, D, L, R] (repeat 0)) -- | MAKE MANUAL GAP ADJUSTMENT POSSIBLE
                 magMOSalt = noMASTERmag mosALT
-                magMOSaltS =
-                  spacingRaw
-                    False
-                    (Border 0 3 3 3)
-                    True
-                    (Border 3 3 3 3)
-                    True
-                    magMOSalt
+                magMOSaltS = spacing33 magMOSalt
                 mosALT = MosaicAlt M.empty
                 noMASTERmag = magnify 1.5 (NoMaster 3) True
                 ostentationTheme =
@@ -1169,33 +1180,18 @@ main = do
                 rT = ResizableTall 1 0.03 0.5 []
                 rTC = ResizableThreeCol 1 0.03 0.5 []
                 rTCM = ResizableThreeColMid 1 0.03 0.5 []
-                rTCs =
-                  spacingRaw
-                    False
-                    (Border 0 8 8 8)
-                    True
-                    (Border 8 8 8 8)
-                    True
-                    rTC
-                rTCMs =
-                  spacingRaw
-                    False
-                    (Border 0 8 8 8)
-                    True
-                    (Border 8 8 8 8)
-                    True
-                    rTCM
+                rTCs = spacing88 rTC
+                rTCMs = spacing88 rTCM
                 rTCsNOmaster = noMASTERmag rTCs
                 rTiled = IfMax 2 rT otherRT
-                rTiledS =
-                  spacingRaw
-                    False
-                    (Border 0 4 4 4)
-                    True
-                    (Border 4 4 4 4)
-                    True
-                    rTiled
+                rTiledS = spacing44 rTiled
                 rTiledSnoMASTER = noMASTERmag rTiledS
+                spacing33 =
+                  spacingRaw False (Border 0 3 3 3) True (Border 3 3 3 3) True
+                spacing44 =
+                  spacingRaw False (Border 0 4 4 4) True (Border 4 4 4 4) True
+                spacing88 =
+                  spacingRaw False (Border 0 8 8 8) True (Border 8 8 8 8) True
                 sub =
                   addTabs CustomShrink ostentationTheme . subLayout [] Simplest
                 φ = realToFrac ((1.0 + sqrt 5) / 2.0 :: Double)
