@@ -1,5 +1,5 @@
 -- | BOTTOM XMOBAR
-Config { font = "xft:B612 Regular:size=11"
+Config { font = "xft:B612 Mono:size=12"
         , additionalFonts = []
         , wmClass = "xmobar"
         , wmName = "xmobar"
